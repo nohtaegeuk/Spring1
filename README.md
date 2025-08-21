@@ -25,7 +25,7 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 ```bash
 jmap -heap <PID>
 ```
-## A. Young Generation (신세대) 👉 새로 생성된 객체가 처음 저장되는 공간
+### A. Young Generation (신세대) 👉 새로 생성된 객체가 처음 저장되는 공간
 
 ### 🌱 Eden Space
 - 모든 객체는 처음 **Eden**에 생성됨  
@@ -48,7 +48,7 @@ jmap -heap <PID>
 
 - 여러 번 GC를 거쳐도 살아남은 객체는 결국 **Old Generation**으로 승격(Promotion)
 
-## B. Old Generation (구세대) 👉 오래 살아남은 객체가 저장되는 공간
+### B. Old Generation (구세대) 👉 오래 살아남은 객체가 저장되는 공간
 
 Survivor에서 여러 번 GC를 거쳐도 살아남으면 Old Gen으로 이동
 
