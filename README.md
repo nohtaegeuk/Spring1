@@ -20,7 +20,7 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 
 ---
 
-## 3. Heap 용량 확인 방법 및 JVM Heap 영역 구조
+## 4. Heap 용량 확인 방법 및 JVM Heap 영역 구조
 
 ```bash
 jmap -heap <PID>
@@ -178,8 +178,6 @@ OutOfMemoryError: Java heap space 발생 시
 
 Heap Dump는 메모리 문제 분석 필수 도구
 
-OOM 발생 시 자동 .hprof 파일 생성되도록 JVM 옵션 필수
-
-개발/운영 서버 모두 setenv.sh에 HeapDump 옵션 반영 완료
+OOM 발생 시 자동 .hprof 파일 생성되도록 하여 빠른 분석이 가능함
 
 개발 서버 OOMTest 실행으로 정상 작동 검증 완료
