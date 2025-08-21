@@ -21,37 +21,64 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 
 ---
 
-## 3. Heap 용량 확인 방법
+## 3. Heap 용량 확인 방법 및 JVM Heap 영역 구조
 
 ```bash
 jmap -heap <PID>
 ```
 
-
 # A. Young Generation (신세대) 👉 새로 생성된 객체가 처음 저장되는 공간
 
-## 🌱 Eden Space
+# 🌱 Eden Space
 - 모든 객체는 처음 **Eden**에 생성됨  
 - Eden이 가득 차면 **Minor GC(Young GC)** 발생  
 - GC 후 살아남은 객체는 **Survivor 영역**으로 이동  
 
 ---
 
-## 🔄 From Space / To Space (Survivor 영역)
+# 🔄 From Space / To Space (Survivor 영역)
 - Eden에서 살아남은 객체가 이동하는 공간  
 - **두 개의 Survivor 영역(From / To)** 이 번갈아 사용됨  
-  - 복사 알고리즘(Copying GC) 적용  
+| 항목        | 역할                                      |
+|------------|-----------------------------------------|
+| From Space | 현재 살아남은 객체가 임시로 있는 영역         |
+| To Space   | 다음 GC에서 객체를 복사할 대상 영역          |
+| 특징        | 두 영역은 번갈아 사용되며, 실제 구조는 동일   |
+
 - 여러 번 GC를 거쳐도 살아남은 객체는 결국 **Old Generation**으로 승격(Promotion)
 
-# B. Old Generation (구세대)
-
-👉 오래 살아남은 객체가 저장되는 공간
+# B. Old Generation (구세대) 👉 오래 살아남은 객체가 저장되는 공간
 
 Survivor에서 여러 번 GC를 거쳐도 살아남으면 Old Gen으로 이동
 
 큰 객체(Large Object)도 직접 Old Gen에 들어갈 수 있음
 
 Old Gen이 가득 차면 Major GC(Full GC)가 발생
+
+
+   +-------------------+
+   |       Eden        |  ← 새 객체 생성
+   |   (Young Gen)     |
+   +-------------------+
+           |
+    Minor GC 발생
+           |
+           v
++-----------------------+
+|     Survivor Area      |  ← Eden에서 살아남은 객체 이동
+|  +-------------+      |
+|  |  From Space | ← 현재 GC에서 사용
+|  +-------------+      |
+|  |  To Space   | ← 다음 GC 대비
+|  +-------------+      |
++-----------------------+
+           |
+    여러 번 살아남은 객체
+    v
+    +-------------------+
+    | Old Generation | ← 장수 객체 저장
+    | (Full GC 대상) |
+    +-------------------+
 
 
 ---
