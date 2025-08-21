@@ -1,4 +1,3 @@
-### 📌 Heap Dump 적용 가이드
 ## 1. Heap Dump란?
 
 JVM의 힙 메모리 상태를 그대로 덤프한 파일
@@ -26,28 +25,30 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 ```bash
 jmap -heap <PID>
 ```
+## A. Young Generation (신세대) 👉 새로 생성된 객체가 처음 저장되는 공간
 
-# A. Young Generation (신세대) 👉 새로 생성된 객체가 처음 저장되는 공간
-
-# 🌱 Eden Space
+### 🌱 Eden Space
 - 모든 객체는 처음 **Eden**에 생성됨  
 - Eden이 가득 차면 **Minor GC(Young GC)** 발생  
 - GC 후 살아남은 객체는 **Survivor 영역**으로 이동  
 
 ---
 
-# 🔄 From Space / To Space (Survivor 영역)
+### 🔄 From Space / To Space (Survivor 영역)
 - Eden에서 살아남은 객체가 이동하는 공간  
-- **두 개의 Survivor 영역(From / To)** 이 번갈아 사용됨  
+- **두 개의 Survivor 영역(From / To)** 이 번갈아 사용됨
+
+
 | 항목        | 역할                                      |
-|------------|-----------------------------------------|
-| From Space | 현재 살아남은 객체가 임시로 있는 영역         |
-| To Space   | 다음 GC에서 객체를 복사할 대상 영역          |
-| 특징        | 두 영역은 번갈아 사용되며, 실제 구조는 동일   |
+|------------|------------------------------------------|
+| From Space | 현재 살아남은 객체가 임시로 있는 영역             |
+| To Space   | 다음 GC에서 객체를 복사할 대상 영역              |
+| 특징        | 두 영역은 번갈아 사용되며, 실제 구조는 동일         |
+
 
 - 여러 번 GC를 거쳐도 살아남은 객체는 결국 **Old Generation**으로 승격(Promotion)
 
-# B. Old Generation (구세대) 👉 오래 살아남은 객체가 저장되는 공간
+## B. Old Generation (구세대) 👉 오래 살아남은 객체가 저장되는 공간
 
 Survivor에서 여러 번 GC를 거쳐도 살아남으면 Old Gen으로 이동
 
@@ -55,34 +56,42 @@ Survivor에서 여러 번 GC를 거쳐도 살아남으면 Old Gen으로 이동
 
 Old Gen이 가득 차면 Major GC(Full GC)가 발생
 
+```text
++---------------------------+
+|          Eden             |
+|   (Young Generation)      |
+|  - 새 객체 생성              |
+|  - Eden 가득 차면 Minor GC  |
++---------------------------+
+            |
+            v
++---------------------------+
+|     Survivor 영역          |
+|   (From Space / To Space) |
+|  - Eden에서 살아남은 객체 이동  |
+|  - From Space: 현재 GC 사용  |
+|  - To Space  : 다음 GC 대비  |
+|  - From ↔ To 번갈아 사용      |
++---------------------------+
+            |
+            v
++---------------------------+
+|      Old Generation       |
+|  - Survivor에서 여러 번      |
+|    살아남거나 큰 객체 이동      |
+|  - Full GC 대상             |
++---------------------------+
+            |
+            v
++---------------------------+
+| OOM 발생 (OutOfMemoryError) |
+|  - Old Generation이 가득 차  |
+|    GC로도 회수 불가 시 발생     |
++---------------------------+
+```
 
-   +-------------------+
-   |       Eden        |  ← 새 객체 생성
-   |   (Young Gen)     |
-   +-------------------+
-           |
-    Minor GC 발생
-           |
-           v
-+-----------------------+
-|     Survivor Area      |  ← Eden에서 살아남은 객체 이동
-|  +-------------+      |
-|  |  From Space | ← 현재 GC에서 사용
-|  +-------------+      |
-|  |  To Space   | ← 다음 GC 대비
-|  +-------------+      |
-+-----------------------+
-           |
-    여러 번 살아남은 객체
-    v
-    +-------------------+
-    | Old Generation | ← 장수 객체 저장
-    | (Full GC 대상) |
-    +-------------------+
 
----
-
-### 5. Heap Dump 적용 방법
+## 5. Heap Dump 적용 방법
 
 Dump 파일 경로
 
@@ -99,20 +108,20 @@ CATALINA_OPTS="$CATALINA_OPTS -Xms2g -Xmx3.8g \
 export CATALINA_OPTS
 ```
 
-| 옵션         | 설명                            |
-| ---------- | ----------------------------- |
-| `-Xms2g`   | JVM 시작 시 힙(Heap) 초기 크기 2GB 지정 |
-| `-Xmx3.8g` | JVM 최대 힙 크기 3.8GB 지정          |
-| `-Xloggc:/DATA/.../gc.log` | GC 로그를 지정한 파일에 기록                |
-| `-XX:+PrintGCDetails`      | GC 발생 시 상세 정보(Heap 영역별 사용량 등) 출력 |
-| `-XX:+PrintGCDateStamps`   | GC 발생 시 시간 정보 포함                 |
+| 옵션                                         | 설명                            |
+| ------------------------------------------- | ----------------------------- |
+| `-Xms2g`                                    | JVM 시작 시 힙(Heap) 초기 크기 2GB 지정 |
+| `-Xmx3.8g`                                  | JVM 최대 힙 크기 3.8GB 지정          |
+| `-Xloggc:/DATA/.../gc.log`                  | GC 로그를 지정한 파일에 기록                |
+| `-XX:+PrintGCDetails`                       | GC 발생 시 상세 정보(Heap 영역별 사용량 등) 출력 |
+| `-XX:+PrintGCDateStamps`                    | GC 발생 시 시간 정보 포함                 |
 | `-XX:+HeapDumpOnOutOfMemoryError`           | OOM 발생 시 자동으로 Heap Dump(.hprof) 생성 |
 | `-XX:HeapDumpPath=/DATA/.../heapdump.hprof` | Heap Dump 파일 저장 경로 지정              |
 
 
 ---
 
-### 6. 개발 서버 테스트 (OOM 유발)
+## 6. 개발 서버 테스트 (OOM 유발)
 
 테스트 코드 (OOMTest.java)
 
@@ -150,9 +159,11 @@ com.pkg.OOMT.OOMTest
 OutOfMemoryError: Java heap space 발생 시
 동일 경로에 heapdump.hprof & gc.log 파일 생성
 
+![KakaoTalk_Photo_2025-08-21-11-04-39](https://github.com/user-attachments/assets/abf70ad9-427d-492a-88e0-8d5dda93e7df)
+
 ---
 
-### 7. 운영 서버 확인 절차
+## 7. 운영 서버 확인 절차
 
 JVM 플래그 확인
 ```bash
@@ -176,7 +187,7 @@ GC 로그 설정
 
 ---
 
-### ✅ 최종 정리
+# ✅ 최종 정리
 
 Heap Dump는 메모리 문제 분석 필수 도구
 
