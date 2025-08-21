@@ -80,37 +80,6 @@ Old Gen이 가득 차면 Major GC(Full GC)가 발생
     | (Full GC 대상) |
     +-------------------+
 
-
----
-
-## 3. 서버 제어 방식
-
-운영 서버
-```bash
-sudo systemctl start|stop node10,20,30.service
-```
-
-개발 서버
-```bash
-./start.sh | ./stop.sh
-```
----
-
-### 4. 서버별 PID & 힙 크기
-| 구분 | 서버 | PID     | MaxHeapSize   | 힙 크기 |
-|------|------|---------|---------------|---------|
-| 운영 | node10 | 3764120 | 2147483648   | 2G      |
-| 운영 | node20 | 3766664 | 4294967296   | 4G      |
-| 운영 | node30 | 3771163 | 2147483648   | 2G      |
-| 개발 | node10 | 2394700 | 4150263808   | 3.8G    |
-| 개발 | node20 | 2394702 | 4150263808   | 3.8G    |
-| 개발 | node30 | 2669255 | 4150263808   | 3.8G    |
-
-🔍 확인 방법
-```bash
-jps -l               # PID 확인
-jcmd <PID> VM.flags  # 힙 크기 확인
-```
 ---
 
 ### 5. Heap Dump 적용 방법
@@ -118,7 +87,6 @@ jcmd <PID> VM.flags  # 힙 크기 확인
 Dump 파일 경로
 
 /DATA/tomcat9/domain/node10,20,30/logs
-
 
 setenv.sh 설정 예시
 ```bash
@@ -130,6 +98,18 @@ CATALINA_OPTS="$CATALINA_OPTS -Xms2g -Xmx3.8g \
 -XX:HeapDumpPath=/DATA/tomcat9/domain/node30/logs/heapdump.hprof"
 export CATALINA_OPTS
 ```
+
+| 옵션         | 설명                            |
+| ---------- | ----------------------------- |
+| `-Xms2g`   | JVM 시작 시 힙(Heap) 초기 크기 2GB 지정 |
+| `-Xmx3.8g` | JVM 최대 힙 크기 3.8GB 지정          |
+| `-Xloggc:/DATA/.../gc.log` | GC 로그를 지정한 파일에 기록                |
+| `-XX:+PrintGCDetails`      | GC 발생 시 상세 정보(Heap 영역별 사용량 등) 출력 |
+| `-XX:+PrintGCDateStamps`   | GC 발생 시 시간 정보 포함                 |
+| `-XX:+HeapDumpOnOutOfMemoryError`           | OOM 발생 시 자동으로 Heap Dump(.hprof) 생성 |
+| `-XX:HeapDumpPath=/DATA/.../heapdump.hprof` | Heap Dump 파일 저장 경로 지정              |
+
+
 ---
 
 ### 6. 개발 서버 테스트 (OOM 유발)
