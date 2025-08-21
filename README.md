@@ -23,21 +23,22 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 
 ## 3. Heap 용량 확인 방법
 
-
-
+```bash
+jmap -heap <PID>
+```
 ---
 
 ## 3. 서버 제어 방식
 
 운영 서버
-
+```bash
 sudo systemctl start|stop node10,20,30.service
-
+```
 
 개발 서버
-
+```bash
 ./start.sh | ./stop.sh
-
+```
 ---
 
 ### 4. 서버별 PID & 힙 크기
@@ -51,10 +52,10 @@ sudo systemctl start|stop node10,20,30.service
 | 개발 | node30 | 2669255 | 4150263808   | 3.8G    |
 
 🔍 확인 방법
-
+```bash
 jps -l               # PID 확인
 jcmd <PID> VM.flags  # 힙 크기 확인
-
+```
 ---
 
 ### 5. Heap Dump 적용 방법
@@ -65,7 +66,7 @@ Dump 파일 경로
 
 
 setenv.sh 설정 예시
-
+```bash
 CATALINA_OPTS="$CATALINA_OPTS -Xms2g -Xmx3.8g \
 -Xloggc:/DATA/tomcat9/domain/node30/logs/gc.log \
 -XX:+PrintGCDetails \
@@ -73,13 +74,14 @@ CATALINA_OPTS="$CATALINA_OPTS -Xms2g -Xmx3.8g \
 -XX:+HeapDumpOnOutOfMemoryError \
 -XX:HeapDumpPath=/DATA/tomcat9/domain/node30/logs/heapdump.hprof"
 export CATALINA_OPTS
-
+```
 ---
 
 ### 6. 개발 서버 테스트 (OOM 유발)
 
 테스트 코드 (OOMTest.java)
 
+```java
 package com.pkg.OOMT;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,15 +100,16 @@ public class OOMTest {
         }
     }
 }
-
+```
 
 실행 명령어
 
+```bash
 java -cp . -Xms2g -Xmx3g \
 -XX:+HeapDumpOnOutOfMemoryError \
 -XX:HeapDumpPath=/DATA/tomcat9/domain/node30/logs/heapdump.hprof \
 com.pkg.OOMT.OOMTest
-
+```
 
 결과
 OutOfMemoryError: Java heap space 발생 시
@@ -117,18 +120,18 @@ OutOfMemoryError: Java heap space 발생 시
 ### 7. 운영 서버 확인 절차
 
 JVM 플래그 확인
-
+```bash
 jcmd <PID> VM.flags
-
+```
 
 -XX:+HeapDumpOnOutOfMemoryError
 
 -XX:HeapDumpPath=/DATA/tomcat9/domain/node30/logs/heapdump.hprof
 
 Tomcat PID 확인
-
+```bash
 ps -ef | grep java
-
+```
 
 GC 로그 설정
 
