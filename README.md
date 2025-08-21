@@ -1,11 +1,13 @@
-📌 Heap Dump 적용 가이드
-1. Heap Dump란?
+### 📌 Heap Dump 적용 가이드
+## 1. Heap Dump란?
 
 JVM의 힙 메모리 상태를 그대로 덤프한 파일
 
 객체 정보, 참조 구조, 메모리 사용량 등을 확인할 수 있는 스냅샷
 
-2. Heap Dump 목적
+---
+
+## 2. Heap Dump 목적
 
 메모리 문제 분석을 위해 사용
 
@@ -15,7 +17,9 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 
 ⚡ 메모리 최적화 → 객체 할당 패턴 분석 및 개선
 
-3. 서버 제어 방식
+---
+
+## 3. 서버 제어 방식
 
 운영 서버
 
@@ -26,7 +30,9 @@ sudo systemctl start|stop node10,20,30.service
 
 ./start.sh | ./stop.sh
 
-4. 서버별 PID & 힙 크기
+---
+
+### 4. 서버별 PID & 힙 크기
 서버	PID	MaxHeapSize	힙 크기
 운영 node10	3764120	2147483648	2G
 운영 node20	3766664	4294967296	4G
@@ -40,7 +46,9 @@ sudo systemctl start|stop node10,20,30.service
 jps -l               # PID 확인
 jcmd <PID> VM.flags  # 힙 크기 확인
 
-5. Heap Dump 적용 방법
+---
+
+### 5. Heap Dump 적용 방법
 
 Dump 파일 경로
 
@@ -57,7 +65,9 @@ CATALINA_OPTS="$CATALINA_OPTS -Xms2g -Xmx3.8g \
 -XX:HeapDumpPath=/DATA/tomcat9/domain/node30/logs/heapdump.hprof"
 export CATALINA_OPTS
 
-6. 개발 서버 테스트 (OOM 유발)
+---
+
+### 6. 개발 서버 테스트 (OOM 유발)
 
 테스트 코드 (OOMTest.java)
 
@@ -93,7 +103,9 @@ com.pkg.OOMT.OOMTest
 OutOfMemoryError: Java heap space 발생 시
 동일 경로에 heapdump.hprof & gc.log 파일 생성
 
-7. 운영 서버 확인 절차
+---
+
+### 7. 운영 서버 확인 절차
 
 JVM 플래그 확인
 
@@ -115,7 +127,9 @@ GC 로그 설정
 -XX:+PrintGCDetails
 -XX:+PrintGCDateStamps
 
-✅ 최종 정리
+---
+
+### ✅ 최종 정리
 
 Heap Dump는 메모리 문제 분석 필수 도구
 
