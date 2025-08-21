@@ -20,7 +20,7 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 
 ---
 
-## 4. Heap 용량 확인 방법 및 JVM Heap 영역 구조
+## 3. Heap 용량 확인 방법 및 JVM Heap 영역 구조
 
 ```bash
 jmap -heap <PID>
@@ -90,6 +90,34 @@ Old Gen이 가득 차면 Major GC(Full GC)가 발생
 +---------------------------+
 ```
 
+## 4. Minor gc vs Full gc
+
+| 구분       | Minor GC                       | Full GC                          |
+|-----------|--------------------------------|---------------------------------|
+| 대상 영역  | Young Generation               | Young + Old (+ Metaspace)       |
+| 수행 속도  | 빠름                             | 느림 (Stop-the-World)           |
+| 발생 빈도  | 자주 발생                        | 드물게 발생                      |
+| 목적       | Eden 객체 회수 & Survivor 이동 | 힙 전체 청소, Old Gen 회수       |
+| 애플리케이션 영향 | 일부 정지                        | 대부분 스레드 정지               |
+| Old Generation 사용 | Promotion 대상 객체만 일부 사용      | Old Gen 전체 청소       |
+
+- gc.log 예재
+
+```text
+[GC (Allocation Failure) [PSYoungGen: 1024K->256K(1536K)] 4096K->3328K(5120K), 0.0056780 secs]
+[Times: user=0.01 sys=0.00, real=0.01 secs]
+```
+- PSYoungGen: 1024K->256K(1536K) → Young Gen 사용량 변동 (GC 전후, 총 크기)
+- 4096K->3328K(5120K) → Heap 전체 사용량 변동 (GC 전후, 최대 힙)
+- 0.0056780 secs → GC 수행 시간
+
+```text
+[Full GC (Ergonomics) [PSYoungGen: 512K->0K(1536K)] [ParOldGen: 3328K->3100K(3584K)] 3840K->3100K(5120K), [Metaspace: 300K->300K(1056768K)], 0.1234567 secs]
+[Times: user=0.10 sys=0.01, real=0.12 secs]
+```
+- [PSYoungGen: 512K->0K(1536K)] → Young Gen 청소 완료
+- [ParOldGen: 3328K->3100K(3584K)] → Old Gen 청소, 일부 객체 살아남음
+- 3840K->3100K(5120K) → Heap 전체 사용량 변화
 
 ## 5. Heap Dump 적용 방법
 
