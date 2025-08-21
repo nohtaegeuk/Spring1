@@ -161,30 +161,17 @@ OutOfMemoryError: Java heap space 발생 시
 
 ![KakaoTalk_Photo_2025-08-21-11-04-39](https://github.com/user-attachments/assets/abf70ad9-427d-492a-88e0-8d5dda93e7df)
 
----
+- **Shallow Size:** 32B  
+  - 해당 객체 자체가 차지하는 메모리: **32바이트**
+  - 참조하는 다른 객체의 메모리는 포함하지 않음
 
-## 7. 운영 서버 확인 절차
+- **Retained Size:** 2.68 GB  
+  - 이 객체가 유지하고 있는 **전체 메모리 양**
+  - 해당 객체를 제거하면 GC로 회수 가능한 모든 객체 포함
+  - 예시: 이 객체가 단독으로 참조하고 있는 큰 컬렉션, 배열, 하위 객체 등 모두 포함
 
-JVM 플래그 확인
-```bash
-jcmd <PID> VM.flags
-```
-
--XX:+HeapDumpOnOutOfMemoryError
-
--XX:HeapDumpPath=/DATA/tomcat9/domain/node30/logs/heapdump.hprof
-
-Tomcat PID 확인
-```bash
-ps -ef | grep java
-```
-
-GC 로그 설정
-
--Xloggc:/DATA/tomcat9/domain/node30/logs/gc.log
--XX:+PrintGCDetails
--XX:+PrintGCDateStamps
-
+- 해석 : **32B 객체 하나가 2.68GB를 유지**하고 있는 셈
+  
 ---
 
 # ✅ 최종 정리
