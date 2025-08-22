@@ -23,7 +23,8 @@ JVM의 힙 메모리 상태를 그대로 덤프한 파일
 ## 3. Heap 용량 확인 방법 및 JVM Heap 영역 구조
 
 ```bash
-jmap -heap <PID>
+jps -l : JVM 프로세스 목록 확인
+jmap -heap <PID> : Heap 메모리 덤프 확인
 ```
 ### A. Young Generation (신세대) 👉 새로 생성된 객체가 처음 저장되는 공간
 
@@ -208,4 +209,6 @@ Heap Dump는 메모리 문제 분석 필수 도구
 
 OOM 발생 시 자동 .hprof 파일 생성되도록 하여 빠른 분석이 가능함
 
-개발 서버 OOMTest 실행으로 정상 작동 검증 완료
+개발 서버(관리자) OOMTest 실행으로 정상 작동 검증 완료
+
+
